@@ -1,26 +1,19 @@
-iptables:
+stig-enabled-services:
   service.running:
     - enable: True
+    - names:
+      # - iptables
+      - ip6tables
+      - auditd
+      - crond
+      - postfix
 
-ip6tables:
-  service.running:
-    - enable: True
-
-auditd:
-  service.running:
-    - enable: True
-
-crond:
-  service.running:
-    - enable: True
-
-rdisc:
+stig-disabled-services:
   service.dead:
     - enable: False
-
-postfix:
-  service.running:
-    - enable: True
+    - names:
+      - rdisc
+      - netconsole
 
 /etc/gshadow:
   file.managed:
@@ -58,5 +51,6 @@ postfix:
     - group: root
 
 /etc/sysconfig/iptables:
-  file.managed:
-    - source: salt://stig/iptables
+  file.replace:
+    - before: :INPUT ACCEPT [0:0]
+    - after: :INPUT DROP [0:0] 
