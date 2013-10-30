@@ -2,7 +2,7 @@ stig-enabled-services:
   service.running:
     - enable: True
     - names:
-      # - iptables
+      - iptables
       - ip6tables
       - auditd
       - crond
@@ -14,6 +14,8 @@ stig-disabled-services:
     - names:
       - rdisc
       - netconsole
+      - rhnsd
+
 
 /etc/gshadow:
   file.managed:
@@ -50,7 +52,22 @@ stig-disabled-services:
     - user: root
     - group: root
 
-/etc/sysconfig/iptables:
-  file.replace:
-    - before: :INPUT ACCEPT [0:0]
-    - after: :INPUT DROP [0:0] 
+stig-iptables:
+  file.sed:
+    - name: /etc/sysconfig/iptables
+    - before: INPUT ACCEPT
+    - after: INPUT DROP
+    - before: FORWARD ACCEPT
+    - after: FORWARD DROP
+
+stig-auditd:
+  file.sed:
+    - name: /etc/audit/auditd.conf
+    - before: space_left_action = SYSLOG
+    - after: space_left_action = EMAIL
+
+/etc/yum.conf:
+  file.managed:
+    - source: salt://stig/yum.conf
+
+
